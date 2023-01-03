@@ -1,0 +1,36 @@
+version: "3"
+
+services:
+    backend:
+        build:
+            context: .
+            dockerfile: ./backend/Dockerfile.dev
+        volumes:
+            - ./backend/:/var/www
+        expose:
+            - 9000
+        tty: true
+        networks:
+            - over_option_network
+
+    nginx:
+        build:
+            context: .
+            dockerfile: ./nginx/Dockerfile
+        depends_on:
+            - backend
+        restart: unless-stopped
+        tty: true
+        ports:
+            - "8000:80"
+        volumes:
+            - ./backend/public/:/var/www/public
+            - ./nginx/templates/:/etc/nginx/templates/
+        environment:
+            - BACKEND_URL=backend
+        networks:
+            - over_option_network
+
+networks:
+    over_option_network:
+        driver: bridge
