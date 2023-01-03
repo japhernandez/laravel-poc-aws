@@ -12,7 +12,7 @@
             },
             {
                 "name": "DB_CONNECTION",
-                "value": "pgsql"
+                "value": "mysql"
             },
             {
                 "name": "DB_PORT",
