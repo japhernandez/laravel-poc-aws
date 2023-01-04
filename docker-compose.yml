@@ -1,36 +1,86 @@
-version: "3"
-
+version: '3'
 services:
-    backend:
-        build:
-            context: .
-            dockerfile: ./backend/Dockerfile.dev
-        volumes:
-            - ./backend/:/var/www
-        expose:
-            - 9000
-        tty: true
-        networks:
-            - over_option_network
 
-    nginx:
-        build:
-            context: .
-            dockerfile: ./nginx/Dockerfile
-        depends_on:
-            - backend
-        restart: unless-stopped
-        tty: true
-        ports:
-            - "8000:80"
-        volumes:
-            - ./backend/public/:/var/www/public
-            - ./nginx/templates/:/etc/nginx/templates/
-        environment:
-            - BACKEND_URL=backend
-        networks:
-            - over_option_network
+  #Laravel App
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: over-option-aws/laravel
+    container_name: backend
+    volumes:
+      - ./backend/:/var/www
+    expose:
+      - 9000
+    restart: unless-stopped
+    tty: true
+    environment:
+      - DB_HOST=mysql
+      - DB_CONNECTION=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=tf_sample
+      - DB_USERNAME=admin
+      - DB_PASSWORD=1234
+    networks:
+      - app-network
 
+  #Nginx Service
+  nginx:
+    build:
+      context: .
+      dockerfile: ./nginx/Dockerfile
+    depends_on:
+      - backend
+    container_name: nginx
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "8000:80"
+    volumes:
+      - ./backend/public/:/var/www/public
+      - ./nginx/templates/:/etc/nginx/templates/
+    environment:
+      - BACKEND_URL=backend
+    networks:
+      - app-network
+
+  #MySQL Service
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: tf_sample
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: 1234
+      MYSQL_ROOT_PASSWORD: Root2018*
+    volumes:
+      - mysql-data:/var/lib/mysql/
+    networks:
+      - app-network
+
+  #phpmyadmin Service
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: phpmyadmin
+    ports:
+      - "8080:80"
+    environment:
+      - PMA_HOST=db
+    depends_on:
+      - mysql
+    networks:
+      - app-network
+
+#Docker Networks
 networks:
-    over_option_network:
-        driver: bridge
+  app-network:
+    driver: bridge
+
+#Volumes
+volumes:
+  mysql-data:
+    driver: local
