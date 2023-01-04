@@ -1,5 +1,5 @@
 # Set master image
-FROM php:7.4-fpm-alpine3.13
+FROM php:7.4-fpm-alpine
 
 # Copy composer.lock and composer.json
 COPY composer.lock composer.json /var/www/html/
@@ -10,23 +10,29 @@ WORKDIR /var/www/html
 # Install Additional dependencies
 RUN apk update && apk add --no-cache \
     build-base shadow vim curl \
-    php7 \
-    php7-fpm \
-    php7-common \
-    php7-pdo \
-    php7-pdo_mysql \
-    php7-mysqli \
-    php7-mcrypt \
-    php7-mbstring \
-    php7-xml \
-    php7-openssl \
-    php7-json \
-    php7-phar \
-    php7-zip \
-    php7-gd \
-    php7-dom \
-    php7-session \
-    php7-zlib
+    freetype \
+    libpng \
+    libjpeg-turbo \
+    freetype-dev \
+    libpng-dev \
+    libjpeg-turbo-dev
+#    php7 \
+#    php7-fpm \
+#    php7-common \
+#    php7-pdo \
+#    php7-pdo_mysql \
+#    php7-mysqli \
+#    php7-mcrypt \
+#    php7-mbstring \
+#    php7-xml \
+#    php7-openssl \
+#    php7-json \
+#    php7-phar \
+#    php7-zip \
+#    php7-gd \
+#    php7-dom \
+#    php7-session \
+#    php7-zlib
 
 # Add and Enable PHP-PDO Extenstions
 RUN docker-php-ext-install pdo pdo_mysql
