@@ -231,26 +231,3 @@ resource "aws_codebuild_project" "backend" {
     }
   }
 }
-
-resource "aws_security_group" "frontend_task" {
-  name   = "frontend-task-sg"
-  vpc_id = aws_vpc.vpc.id
-
-  ingress {
-    from_port       = 3000
-    to_port         = 3000
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb.id]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "frontend-task-sg"
-  }
-}

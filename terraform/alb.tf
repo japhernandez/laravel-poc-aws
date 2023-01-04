@@ -43,20 +43,3 @@ resource "aws_lb_listener" "http" {
   }
 }
 
-resource "aws_alb_target_group" "frontend" {
-  name        = "frontend-tg"
-  port        = 3000
-  protocol    = "HTTP"
-  vpc_id      = aws_vpc.vpc.id
-  target_type = "ip"
-
-  health_check {
-    healthy_threshold   = 3
-    interval            = 30
-    protocol            = "HTTP"
-    matcher             = 200
-    timeout             = 3
-    path                = "/"
-    unhealthy_threshold = 2
-  }
-}
