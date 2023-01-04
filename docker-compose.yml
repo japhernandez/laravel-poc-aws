@@ -15,11 +15,11 @@ services:
     restart: unless-stopped
     tty: true
     environment:
-      - DB_HOST=mysql
-      - DB_CONNECTION=mysql
-      - DB_PORT=3306
+      - DB_HOST=postgresql
+      - DB_CONNECTION=pgsql
+      - DB_PORT=5432
       - DB_DATABASE=tf_sample
-      - DB_USERNAME=admin
+      - DB_USERNAME=root
       - DB_PASSWORD=1234
     networks:
       - app-network
@@ -44,34 +44,32 @@ services:
     networks:
       - app-network
 
-  #MySQL Service
-  mysql:
-    image: mysql:5.7
-    container_name: mysql
-    restart: unless-stopped
-    tty: true
-    ports:
-      - "3306:3306"
-    environment:
-      MYSQL_DATABASE: tf_sample
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: 1234
-      MYSQL_ROOT_PASSWORD: Root2018*
+  #Postgres Service
+  postgresql:
+    image: postgres:latest
     volumes:
-      - mysql-data:/var/lib/mysql/
+      - postgresql:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=tf_sample
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=1234
     networks:
       - app-network
 
   #phpmyadmin Service
-  phpmyadmin:
-    image: phpmyadmin
-    container_name: phpmyadmin
-    ports:
-      - "8080:80"
-    environment:
-      - PMA_HOST=db
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    restart: always
     depends_on:
-      - mysql
+      - postgresql
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "5050:80"
     networks:
       - app-network
 
@@ -82,5 +80,5 @@ networks:
 
 #Volumes
 volumes:
-  mysql-data:
+  postgresql:
     driver: local

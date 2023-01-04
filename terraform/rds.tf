@@ -12,8 +12,8 @@ resource "aws_security_group" "rds" {
   vpc_id = aws_vpc.vpc.id
 
   ingress {
-    from_port       = 3306
-    to_port         = 3306
+    from_port       = 5432
+    to_port         = 5432
     protocol        = "tcp"
     security_groups = [aws_security_group.backend_task.id]
   }
@@ -31,14 +31,13 @@ resource "aws_security_group" "rds" {
 }
 
 resource "aws_db_instance" "db" {
+  name                = var.db_name
   allocated_storage      = 10
-  name                   = var.db_name
-  engine                 = "mysql"
-  engine_version         = "5.7"
-  instance_class         = "db.t2.micro"
+  engine                 = "postgres"
+  engine_version         = 13.4
+  instance_class         = "db.t3.micro"
   username               = var.db_username
   password               = var.db_password
-  parameter_group_name   = "default.mysql5.7"
   db_subnet_group_name   = aws_db_subnet_group.rds.name
   vpc_security_group_ids = [aws_security_group.rds.id]
   skip_final_snapshot    = true
@@ -50,12 +49,12 @@ resource "aws_db_instance" "db" {
 }
 
 resource "aws_secretsmanager_secret" "rds_secret" {
-  name                    = "tfsample/prod/mysql"
+  name                    = "tfsample/prod/postgres"
   recovery_window_in_days = 0 # amount of days a secret is scheduled until real deletion
 }
 
 resource "aws_secretsmanager_secret_version" "rds_secret" {
-  secret_id     = aws_secretsmanager_secret.rds_secret.id
+  secret_id = aws_secretsmanager_secret.rds_secret.id
   secret_string = jsonencode({
     username = aws_db_instance.db.username
     password = aws_db_instance.db.password

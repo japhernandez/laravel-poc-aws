@@ -8,7 +8,9 @@ COPY composer.lock composer.json /var/www/html/
 WORKDIR /var/www/html
 
 # Install Additional dependencies
-RUN apk update && apk add --no-cache \
+RUN apk update \
+    && apk add --no-cache \
+    postgresql-libs postgresql-dev \
     build-base shadow vim curl \
     freetype \
     libpng \
@@ -16,27 +18,10 @@ RUN apk update && apk add --no-cache \
     freetype-dev \
     libpng-dev \
     libjpeg-turbo-dev
-#    php7 \
-#    php7-fpm \
-#    php7-common \
-#    php7-pdo \
-#    php7-pdo_mysql \
-#    php7-mysqli \
-#    php7-mcrypt \
-#    php7-mbstring \
-#    php7-xml \
-#    php7-openssl \
-#    php7-json \
-#    php7-phar \
-#    php7-zip \
-#    php7-gd \
-#    php7-dom \
-#    php7-session \
-#    php7-zlib
 
 # Add and Enable PHP-PDO Extenstions
-RUN docker-php-ext-install pdo pdo_mysql
-RUN docker-php-ext-enable pdo_mysql
+RUN docker-php-ext-install pgsql pdo_pgsql
+RUN docker-php-ext-enable pdo_pgsql
 
 # Install PHP Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
