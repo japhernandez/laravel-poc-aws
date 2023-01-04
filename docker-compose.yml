@@ -18,9 +18,9 @@ services:
       - DB_HOST=postgresql
       - DB_CONNECTION=pgsql
       - DB_PORT=5432
-      - DB_DATABASE=tf_sample
+      - DB_DATABASE=overOptionDb
       - DB_USERNAME=root
-      - DB_PASSWORD=1234
+      - DB_PASSWORD=Root2018*
     networks:
       - app-network
 
@@ -52,9 +52,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_DB=tf_sample
+      - POSTGRES_DB=overOptionDb
       - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=1234
+      - POSTGRES_PASSWORD=Root2018*
     networks:
       - app-network
 
