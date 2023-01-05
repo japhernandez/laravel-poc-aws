@@ -154,7 +154,7 @@ resource "aws_alb_target_group" "backend" {
     protocol            = "HTTP"
     matcher             = 200
     timeout             = 3
-    path                = "/api/test"
+    path                = "/"
     unhealthy_threshold = 2
   }
 }
@@ -170,7 +170,7 @@ resource "aws_lb_listener_rule" "backend" {
 
   condition {
     path_pattern {
-      values = ["/api/*"]
+      values = ["/"]
     }
   }
 }
