@@ -42,4 +42,3 @@ resource "aws_lb_listener" "http" {
     target_group_arn = aws_alb_target_group.backend.arn
   }
 }
-
