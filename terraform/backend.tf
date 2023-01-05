@@ -96,7 +96,7 @@ resource "aws_security_group" "backend_task" {
     from_port       = 80
     to_port         = 80
     protocol        = "tcp"
-    security_groups = [aws_security_group.alb.id, aws_security_group.frontend_task.id]
+    security_groups = [aws_security_group.alb.id]
   }
 
   egress {
