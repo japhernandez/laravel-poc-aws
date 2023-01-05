@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     try {
         DB::connection()->getPdo();
+
         $conn = 'DB connected';
         return view('welcome', ['connection' => $conn]);
     } catch (\Exception $e) {
@@ -28,6 +28,5 @@ Route::get('/', function () {
         $db_password = env('DB_PASSWORD');
         return "DB disconnected: {$e->getMessage()}, DB_CONNECTION={$db_connection}&DB_DATABASE={$db_database}&DB_HOST={$db_host}&DB_PORT={$db_port}&DB_USERNAME=${db_username}&DB_PASSWORD={$db_password}";
     }
-
 
 });

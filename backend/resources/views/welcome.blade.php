@@ -121,7 +121,9 @@
                             </a>
                         </div>
                     </div>
-                    <h3 style="color: white">Connection MySQL successfully => {{$connection}}</h3>
+
+                    <h3>{{$connection}}</h3>
+
                     <div class="ml-4 text-center text-sm text-gray-500 sm:text-right sm:ml-0">
                         Build v{{ Illuminate\Foundation\Application::VERSION }}
                     </div>
