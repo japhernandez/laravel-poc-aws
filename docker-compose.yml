@@ -3,10 +3,10 @@ version: '3'
 services:
     backend:
         build: 
-            context: ./backend
+            context: backend_old
             dockerfile: Dockerfile.dev
         volumes:
-            - ./backend/:/var/www
+            - ./backend_old/:/var/www
         expose: 
             - 9000
         environment:
@@ -44,10 +44,10 @@ services:
         ports: 
             - 8000:80
         volumes: 
-            - ./backend/public/:/var/www/public
+            - ./backend_old/public/:/var/www/public
             - ./nginx/templates/:/etc/nginx/templates/
         environment:
-          - BACKEND_URL=backend
+          - BACKEND_URL=backend_old
         networks:
             - tfsample
     
