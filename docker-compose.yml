@@ -3,10 +3,10 @@ version: '3'
 services:
     backend:
         build: 
-            context: backend_old
-            dockerfile: Dockerfile.dev
+            context: .
+            dockerfile: ./backend/Dockerfile.dev
         volumes:
-            - ./backend_old/:/var/www
+            - ./backend/:/var/www
         expose: 
             - 9000
         environment:
@@ -25,7 +25,7 @@ services:
         volumes:
             - postgresql:/var/lib/postgresql/data
         ports:
-            - 5432:5432
+            - "5432:5432"
         environment:
             - POSTGRES_DB=tf_sample
             - POSTGRES_USER=root
@@ -42,25 +42,12 @@ services:
         restart: unless-stopped
         tty: true
         ports: 
-            - 8000:80
+            - "8000:80"
         volumes: 
-            - ./backend_old/public/:/var/www/public
+            - ./backend/public/:/var/www/public
             - ./nginx/templates/:/etc/nginx/templates/
         environment:
-          - BACKEND_URL=backend_old
-        networks:
-            - tfsample
-    
-    frontend:
-        build:
-            context: ./frontend
-            dockerfile: Dockerfile.dev
-        volumes:
-            - ./frontend:/app
-            - /app/node_modules
-            - /app/.nuxt
-        ports:
-            - 3000:3000
+          - BACKEND_URL=backend
         networks:
             - tfsample
 
