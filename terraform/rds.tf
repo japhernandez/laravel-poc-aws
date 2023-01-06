@@ -31,7 +31,7 @@ resource "aws_security_group" "rds" {
 }
 
 resource "aws_db_instance" "db" {
-  name                = var.db_name
+  name                   = var.db_name
   allocated_storage      = 10
   engine                 = "postgres"
   engine_version         = 13.4

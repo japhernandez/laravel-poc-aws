@@ -30,6 +30,7 @@ resource "aws_iam_role_policy_attachment" "backend_task_execution_policy_attachm
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+
 resource "aws_iam_role_policy" "backend_task_rds_secret_access" {
   name = "backend-task-rds-secret-access"
   role = aws_iam_role.backend_task_execution_role.id
@@ -96,7 +97,7 @@ resource "aws_security_group" "backend_task" {
     from_port       = 80
     to_port         = 80
     protocol        = "tcp"
-    security_groups = [aws_security_group.alb.id]
+    security_groups = [aws_security_group.alb.id, aws_security_group.frontend_task.id]
   }
 
   egress {
@@ -154,7 +155,7 @@ resource "aws_alb_target_group" "backend" {
     protocol            = "HTTP"
     matcher             = 200
     timeout             = 3
-    path                = "/"
+    path                = "/api/test"
     unhealthy_threshold = 2
   }
 }
@@ -170,7 +171,7 @@ resource "aws_lb_listener_rule" "backend" {
 
   condition {
     path_pattern {
-      values = ["/"]
+      values = ["/api/*"]
     }
   }
 }
@@ -210,15 +211,15 @@ resource "aws_codebuild_project" "backend" {
 
     // Use secrets manager on real builds:
     // https://stackoverflow.com/questions/64967922/docker-hub-login-for-aws-codebuild-docker-hub-limit
-    #    environment_variable {
-    #      name  = "DOCKERHUB_USERNAME"
-    #      value = var.dockerhub_username
-    #    }
-    #
-    #    environment_variable {
-    #      name  = "DOCKERHUB_PASSWORD"
-    #      value = var.dockerhub_password
-    #    }
+    environment_variable {
+      name  = "DOCKERHUB_USERNAME"
+      value = var.dockerhub_username
+    }
+
+    environment_variable {
+      name  = "DOCKERHUB_PASSWORD"
+      value = var.dockerhub_password
+    }
 
     environment_variable {
       name  = "BACKEND_REPOSITORY_URL"
