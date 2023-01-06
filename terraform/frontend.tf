@@ -159,18 +159,6 @@ resource "aws_codebuild_project" "frontend" {
       value = data.aws_caller_identity.current.id
     }
 
-    // Use secrets manager on real builds:
-    // https://stackoverflow.com/questions/64967922/docker-hub-login-for-aws-codebuild-docker-hub-limit
-    environment_variable {
-      name  = "DOCKERHUB_USERNAME"
-      value = var.dockerhub_username
-    }
-
-    environment_variable {
-      name  = "DOCKERHUB_PASSWORD"
-      value = var.dockerhub_password
-    }
-
     environment_variable {
       name  = "REPOSITORY_URL"
       value = aws_ecr_repository.frontend.repository_url
