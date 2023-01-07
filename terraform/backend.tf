@@ -8,7 +8,7 @@ resource "aws_ecr_repository" "nginx" {
 
 resource "aws_iam_role" "backend_task_execution_role" {
   name = "backend-task-execution-role"
-
+  path = "/"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -155,7 +155,7 @@ resource "aws_alb_target_group" "backend" {
     protocol            = "HTTP"
     matcher             = 200
     timeout             = 3
-    path                = "/api/test"
+    path                = "/health"
     unhealthy_threshold = 2
   }
 }
@@ -171,7 +171,7 @@ resource "aws_lb_listener_rule" "backend" {
 
   condition {
     path_pattern {
-      values = ["/api/*"]
+      values = ["/*"]
     }
   }
 }
