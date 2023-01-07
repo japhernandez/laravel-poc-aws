@@ -75,19 +75,19 @@ resource "aws_ecs_task_definition" "backend" {
   })
 }
 
-resource "aws_service_discovery_service" "backend" {
-  name = "backend"
-
-  dns_config {
-    namespace_id   = aws_service_discovery_private_dns_namespace.discovery.id
-    routing_policy = "MULTIVALUE"
-
-    dns_records {
-      ttl  = 15
-      type = "A"
-    }
-  }
-}
+#resource "aws_service_discovery_service" "backend" {
+#  name = "backend"
+#
+#  dns_config {
+#    namespace_id   = aws_service_discovery_private_dns_namespace.discovery.id
+#    routing_policy = "MULTIVALUE"
+#
+#    dns_records {
+#      ttl  = 15
+#      type = "A"
+#    }
+#  }
+#}
 
 resource "aws_security_group" "backend_task" {
   name   = "backend-task-sg"
@@ -135,9 +135,9 @@ resource "aws_ecs_service" "backend" {
     ignore_changes = [task_definition]
   }
 
-  service_registries {
-    registry_arn = aws_service_discovery_service.backend.arn
-  }
+#  service_registries {
+#    registry_arn = aws_service_discovery_service.backend.arn
+#  }
 
   depends_on = [aws_lb.alb]
 }
