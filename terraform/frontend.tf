@@ -102,8 +102,8 @@ resource "aws_alb_target_group" "frontend" {
     interval            = 30
     protocol            = "HTTP"
     matcher             = 200
-    timeout             = 3
-    path                = "/"
+    timeout             = 10
+    path                = "/health"
     unhealthy_threshold = 2
   }
 }

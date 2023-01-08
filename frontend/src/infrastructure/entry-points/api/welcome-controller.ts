@@ -1,9 +1,9 @@
 import { Get, Mapping } from '@tsclean/core'
 
-@Mapping('/health')
-export class HealthController {
+@Mapping('/')
+export class WelcomeController {
   @Get()
-  async getHealthController (): Promise<string> {
+  async getWelcomeController (): Promise<string> {
     return JSON.stringify('Welcome Suitme to AWS')
   }
 }
