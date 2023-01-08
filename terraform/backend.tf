@@ -2,10 +2,6 @@ resource "aws_ecr_repository" "backend" {
   name = "backend"
 }
 
-resource "aws_ecr_repository" "nginx" {
-  name = "nginx"
-}
-
 resource "aws_iam_role" "backend_task_execution_role" {
   name = "backend-task-execution-role"
 
@@ -31,27 +27,27 @@ resource "aws_iam_role_policy_attachment" "backend_task_execution_policy_attachm
 }
 
 
-resource "aws_iam_role_policy" "backend_task_rds_secret_access" {
-  name = "backend-task-rds-secret-access"
-  role = aws_iam_role.backend_task_execution_role.id
-
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "secretsmanager:GetSecretValue"
-      ],
-      "Resource": [
-        "${aws_secretsmanager_secret.rds_secret.arn}*"
-      ]
-    }
-  ]
-}
-EOF
-}
+#resource "aws_iam_role_policy" "backend_task_rds_secret_access" {
+#  name = "backend-task-rds-secret-access"
+#  role = aws_iam_role.backend_task_execution_role.id
+#
+#  policy = <<EOF
+#{
+#  "Version": "2012-10-17",
+#  "Statement": [
+#    {
+#      "Effect": "Allow",
+#      "Action": [
+#        "secretsmanager:GetSecretValue"
+#      ],
+#      "Resource": [
+#        "${aws_secretsmanager_secret.rds_secret.arn}*"
+#      ]
+#    }
+#  ]
+#}
+#EOF
+#}
 
 resource "aws_ecs_task_definition" "backend" {
   family                   = "backend"
@@ -66,28 +62,28 @@ resource "aws_ecs_task_definition" "backend" {
 
   container_definitions = templatefile("${abspath(path.root)}/../backend/taskdef.json", {
     BACKEND_IMAGE_PATH = aws_ecr_repository.backend.repository_url
-    NGINX_IMAGE_PATH   = aws_ecr_repository.nginx.repository_url
-    DB_HOST            = aws_db_instance.db.address
-    DB_PORT            = aws_db_instance.db.port
-    DB_DATABASE        = aws_db_instance.db.name
-    DB_USERNAME        = "${aws_secretsmanager_secret.rds_secret.arn}:username::"
-    DB_PASSWORD        = "${aws_secretsmanager_secret.rds_secret.arn}:password::"
+#    NGINX_IMAGE_PATH   = aws_ecr_repository.nginx.repository_url
+#    DB_HOST            = aws_db_instance.db.address
+#    DB_PORT            = aws_db_instance.db.port
+#    DB_DATABASE        = aws_db_instance.db.name
+#    DB_USERNAME        = "${aws_secretsmanager_secret.rds_secret.arn}:username::"
+#    DB_PASSWORD        = "${aws_secretsmanager_secret.rds_secret.arn}:password::"
   })
 }
-
-resource "aws_service_discovery_service" "backend" {
-  name = "backend"
-
-  dns_config {
-    namespace_id   = aws_service_discovery_private_dns_namespace.discovery.id
-    routing_policy = "MULTIVALUE"
-
-    dns_records {
-      ttl  = 15
-      type = "A"
-    }
-  }
-}
+#
+#resource "aws_service_discovery_service" "backend" {
+#  name = "backend"
+#
+#  dns_config {
+#    namespace_id   = aws_service_discovery_private_dns_namespace.discovery.id
+#    routing_policy = "MULTIVALUE"
+#
+#    dns_records {
+#      ttl  = 15
+#      type = "A"
+#    }
+#  }
+#}
 
 resource "aws_security_group" "backend_task" {
   name   = "backend-task-sg"
@@ -97,7 +93,7 @@ resource "aws_security_group" "backend_task" {
     from_port       = 80
     to_port         = 80
     protocol        = "tcp"
-    security_groups = [aws_security_group.alb.id, aws_security_group.frontend_task.id]
+    security_groups = [aws_security_group.alb.id]
   }
 
   egress {
@@ -127,7 +123,7 @@ resource "aws_ecs_service" "backend" {
 
   load_balancer {
     target_group_arn = aws_alb_target_group.backend.arn
-    container_name   = "nginx"
+    container_name   = "backend"
     container_port   = 80
   }
 
@@ -135,9 +131,9 @@ resource "aws_ecs_service" "backend" {
     ignore_changes = [task_definition]
   }
 
-  service_registries {
-    registry_arn = aws_service_discovery_service.backend.arn
-  }
+#  service_registries {
+#    registry_arn = aws_service_discovery_service.backend.arn
+#  }
 
   depends_on = [aws_lb.alb]
 }
@@ -155,7 +151,7 @@ resource "aws_alb_target_group" "backend" {
     protocol            = "HTTP"
     matcher             = 200
     timeout             = 3
-    path                = "/api/test"
+    path                = "/health"
     unhealthy_threshold = 2
   }
 }
@@ -171,7 +167,7 @@ resource "aws_lb_listener_rule" "backend" {
 
   condition {
     path_pattern {
-      values = ["/api/*"]
+      values = ["/*"]
     }
   }
 }
@@ -209,26 +205,9 @@ resource "aws_codebuild_project" "backend" {
       value = data.aws_caller_identity.current.id
     }
 
-    // Use secrets manager on real builds:
-    // https://stackoverflow.com/questions/64967922/docker-hub-login-for-aws-codebuild-docker-hub-limit
-    environment_variable {
-      name  = "DOCKERHUB_USERNAME"
-      value = var.dockerhub_username
-    }
-
-    environment_variable {
-      name  = "DOCKERHUB_PASSWORD"
-      value = var.dockerhub_password
-    }
-
     environment_variable {
       name  = "BACKEND_REPOSITORY_URL"
       value = aws_ecr_repository.backend.repository_url
-    }
-
-    environment_variable {
-      name  = "NGINX_REPOSITORY_URL"
-      value = aws_ecr_repository.nginx.repository_url
     }
   }
 }

@@ -106,19 +106,19 @@ resource "aws_route_table_association" "app" {
   route_table_id = aws_route_table.private.id
 }
 
-resource "aws_subnet" "dbs" {
-  count             = length(local.db_subnets)
-  availability_zone = data.aws_availability_zones.available.names[count.index]
-  vpc_id            = aws_vpc.vpc.id
-  cidr_block        = local.db_subnets[count.index]
-
-  tags = {
-    Name = "tf-sample-db-subnet-${count.index}"
-  }
-}
-
-resource "aws_route_table_association" "db" {
-  count          = length(local.db_subnets)
-  subnet_id      = aws_subnet.dbs[count.index].id
-  route_table_id = aws_route_table.private.id
-}
+#resource "aws_subnet" "dbs" {
+#  count             = length(local.db_subnets)
+#  availability_zone = data.aws_availability_zones.available.names[count.index]
+#  vpc_id            = aws_vpc.vpc.id
+#  cidr_block        = local.db_subnets[count.index]
+#
+#  tags = {
+#    Name = "tf-sample-db-subnet-${count.index}"
+#  }
+#}
+#
+#resource "aws_route_table_association" "db" {
+#  count          = length(local.db_subnets)
+#  subnet_id      = aws_subnet.dbs[count.index].id
+#  route_table_id = aws_route_table.private.id
+#}
