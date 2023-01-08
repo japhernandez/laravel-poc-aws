@@ -9,19 +9,19 @@ phases:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
       # || true avoids errors if the image hasn't been pushed before
-      # - docker pull $REPOSITORY_URL:latest || true
-      # - GIT_SHA=$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - docker pull $REPOSITORY_URL:latest || true
+      - GIT_SHA=$CODEBUILD_RESOLVED_SOURCE_VERSION
   build:
     commands:
       - echo Building the Docker images...
-      - docker build -t $REPOSITORY_URL ./frontend
-      - docker tag $REPOSITORY_URL:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPOSITORY_URL:latest
+      - docker build --cache-from $REPOSITORY_URL:latest -t $REPOSITORY_URL:$GIT_SHA ./frontend
+      - docker tag $REPOSITORY_URL:$GIT_SHA $REPOSITORY_URL:latest
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker image...
-      # - docker push $REPOSITORY_URL:$GIT_SHA
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPOSITORY_URL:latest
-      - printf '[{"name":"%s","imageUri":"%s"}]' frontend $REPOSITORY_URL:latest > imagedefinitions.json
+      - docker push $REPOSITORY_URL:$GIT_SHA
+      - docker push $REPOSITORY_URL:latest
+      - printf '[{"name":"%s","imageUri":"%s"}]' frontend $REPOSITORY_URL:$GIT_SHA > imagedefinitions.json
 artifacts:
   files: imagedefinitions.json
