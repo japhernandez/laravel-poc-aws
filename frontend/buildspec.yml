@@ -15,13 +15,13 @@ phases:
     commands:
       - echo Building the Docker images...
       - docker build -t $REPOSITORY_URL ./frontend
-      - docker tag $REPOSITORY_URL:latest $REPOSITORY_URL:latest
+      - docker tag $REPOSITORY_URL:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPOSITORY_URL:latest
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker image...
       # - docker push $REPOSITORY_URL:$GIT_SHA
-      - docker push $REPOSITORY_URL:latest
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPOSITORY_URL:latest
       - printf '[{"name":"%s","imageUri":"%s"}]' frontend $REPOSITORY_URL:latest > imagedefinitions.json
 artifacts:
   files: imagedefinitions.json
