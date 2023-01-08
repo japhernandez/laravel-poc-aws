@@ -97,15 +97,15 @@ resource "aws_alb_target_group" "frontend" {
   vpc_id      = aws_vpc.vpc.id
   target_type = "ip"
 
-  health_check {
-    healthy_threshold   = 3
-    interval            = 30
-    protocol            = "HTTP"
-    matcher             = 200
-    timeout             = 10
-    path                = "/health"
-    unhealthy_threshold = 2
-  }
+#  health_check {
+#    healthy_threshold   = 3
+#    interval            = 30
+#    protocol            = "HTTP"
+#    matcher             = 200
+#    timeout             = 10
+#    path                = "/health"
+#    unhealthy_threshold = 2
+#  }
 }
 
 resource "aws_lb_listener_rule" "frontend" {
