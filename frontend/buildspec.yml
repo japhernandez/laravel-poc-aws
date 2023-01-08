@@ -23,6 +23,5 @@ phases:
       # - docker push $REPOSITORY_URL:$GIT_SHA
       - docker push $REPOSITORY_URL:latest
       - printf '[{"name":"%s","imageUri":"%s"}]' frontend $REPOSITORY_URL:latest > imagedefinitions.json
-      - aws ecr describe-images
 artifacts:
   files: imagedefinitions.json
