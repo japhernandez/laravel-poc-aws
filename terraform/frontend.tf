@@ -27,7 +27,6 @@ resource "aws_iam_role_policy_attachment" "frontend_task_execution_policy_attach
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-
 resource "aws_ecs_task_definition" "frontend" {
   family                   = "frontend"
   execution_role_arn       = aws_iam_role.frontend_task_execution_role.arn
