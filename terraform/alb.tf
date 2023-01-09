@@ -3,16 +3,16 @@ resource "aws_security_group" "alb" {
   vpc_id = aws_vpc.vpc.id
 
   ingress {
-    from_port   = 0
-    to_port     = 65535
+    from_port   = 80
+    to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
     from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -26,6 +26,8 @@ resource "aws_lb" "alb" {
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb.id]
   subnets            = aws_subnet.publics[*].id
+
+  target_group_arns = [aws_alb_target_group.backend.arn]
 
   tags = {
     Name = "tf-sample-alb"
@@ -41,4 +43,10 @@ resource "aws_lb_listener" "http" {
     type             = "forward"
     target_group_arn = aws_alb_target_group.backend.arn
   }
+}
+
+resource "aws_alb_target_group_attachment" "example" {
+  target_group_arn = aws_alb_target_group.backend.arn
+  target_id        = aws_ecs_task_definition.backend.id
+  port             = 80
 }
