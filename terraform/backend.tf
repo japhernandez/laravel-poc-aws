@@ -187,22 +187,22 @@ resource "aws_alb_target_group" "backend" {
   }
 }
 
-resource "aws_lb_listener" "backend" {
-  load_balancer_arn = aws_lb_listener.http.arn
-  port     = 80
-  protocol = "TCP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_alb_target_group.backend.id
-  }
-
-  lifecycle {
-    ignore_changes = [
-      default_action,
-    ]
-  }
-}
+#resource "aws_lb_listener" "backend" {
+#  load_balancer_arn = aws_lb_listener.http.arn
+#  port     = 80
+#  protocol = "TCP"
+#
+#  default_action {
+#    type             = "forward"
+#    target_group_arn = aws_alb_target_group.backend.id
+#  }
+#
+#  lifecycle {
+#    ignore_changes = [
+#      default_action,
+#    ]
+#  }
+#}
 
 resource "aws_codebuild_project" "backend" {
   name         = "backend"
