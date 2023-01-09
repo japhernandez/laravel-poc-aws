@@ -86,7 +86,7 @@ resource "aws_ecs_task_definition" "backend" {
         {
            "containerPort": 9000,
            "hostPort": 9000,
-           "protocol": "tcp"
+           "protocol": "HTTP"
         }
      ]
   }
@@ -125,7 +125,7 @@ resource "aws_security_group" "backend_task" {
   ingress {
     from_port       = 9000
     to_port         = 9000
-    protocol        = "tcp"
+    protocol        = "HTTP"
     security_groups = [aws_security_group.alb.id]
   }
 
@@ -175,14 +175,14 @@ resource "aws_ecs_service" "backend" {
 resource "aws_alb_target_group" "backend" {
   name        = "backend-tg"
   port        = 9000
-  protocol    = "TCP"
+  protocol    = "HTTP"
   vpc_id      = aws_vpc.vpc.id
   target_type = "ip"
 
   health_check {
     healthy_threshold   = 2
     interval            = 120
-    protocol            = "TCP"
+    protocol            = "HTTP"
     unhealthy_threshold = 2
   }
 }

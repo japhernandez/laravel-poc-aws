@@ -5,7 +5,7 @@ resource "aws_security_group" "alb" {
   ingress {
     from_port   = 9000
     to_port     = 9000
-    protocol    = "tcp"
+    protocol    = "TCP"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -23,10 +23,9 @@ resource "aws_security_group" "alb" {
 
 resource "aws_lb" "alb" {
   name                             = "tf-sample-alb"
-  load_balancer_type               = "network"
-  # security_groups    = [aws_security_group.alb.id]
+  load_balancer_type               = "application"
+  security_groups    = [aws_security_group.alb.id]
   subnets                          = aws_subnet.publics[*].id
-  enable_cross_zone_load_balancing = true
 
   tags = {
     Name = "tf-sample-alb"
@@ -36,7 +35,7 @@ resource "aws_lb" "alb" {
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.alb.arn
   port              = 80
-  protocol          = "TCP"
+  protocol          = "HTTP"
 
   default_action {
     type             = "forward"
