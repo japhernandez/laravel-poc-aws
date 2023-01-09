@@ -60,15 +60,48 @@ resource "aws_ecs_task_definition" "backend" {
   cpu    = 256
   memory = 512
 
-  container_definitions = templatefile("${abspath(path.root)}/../backend/taskdef.json", {
-    BACKEND_IMAGE_PATH = aws_ecr_repository.backend.repository_url
+  container_definitions = <<DEFINITION
+[
+  {
+    "essential": true,
+    "image": "${aws_ecr_repository.backend.repository_url}",
+    "name": "demo",
+    "logConfiguration": {
+            "logDriver": "awslogs",
+            "options": {
+               "awslogs-group" : "demo",
+               "awslogs-region": "${var.aws_region}",
+               "awslogs-stream-prefix": "ecs"
+            }
+     },
+     "secrets": [],
+     "environment": [],
+     "healthCheck": {
+       "command": [ "CMD-SHELL", "curl -f http://localhost:9000/api/ || exit 1" ],
+       "interval": 30,
+       "retries": 3,
+       "timeout": 5
+     },
+     "portMappings": [
+        {
+           "containerPort": 9000,
+           "hostPort": 9000,
+           "protocol": "tcp"
+        }
+     ]
+  }
+]
+DEFINITION
+
+#  container_definitions = templatefile("${abspath(path.root)}/../backend/taskdef.json", {
+#    BACKEND_IMAGE_PATH = aws_ecr_repository.backend.repository_url
 #    NGINX_IMAGE_PATH   = aws_ecr_repository.nginx.repository_url
 #    DB_HOST            = aws_db_instance.db.address
 #    DB_PORT            = aws_db_instance.db.port
 #    DB_DATABASE        = aws_db_instance.db.name
 #    DB_USERNAME        = "${aws_secretsmanager_secret.rds_secret.arn}:username::"
 #    DB_PASSWORD        = "${aws_secretsmanager_secret.rds_secret.arn}:password::"
-  })
+#  })
 }
 #
 #resource "aws_service_discovery_service" "backend" {
@@ -90,8 +123,8 @@ resource "aws_security_group" "backend_task" {
   vpc_id = aws_vpc.vpc.id
 
   ingress {
-    from_port       = 80
-    to_port         = 80
+    from_port       = 9000
+    to_port         = 9000
     protocol        = "tcp"
     security_groups = [aws_security_group.alb.id]
   }
@@ -119,16 +152,17 @@ resource "aws_ecs_service" "backend" {
   network_configuration {
     subnets         = aws_subnet.apps[*].id
     security_groups = [aws_security_group.backend_task.id]
+    assign_public_ip = true
   }
 
   load_balancer {
-    target_group_arn = aws_alb_target_group.backend.arn
+    target_group_arn = aws_alb_target_group.backend.id
     container_name   = "backend"
     container_port   = 9000
   }
 
   lifecycle {
-    ignore_changes = [task_definition]
+    ignore_changes = [task_definition, load_balancer]
   }
 
 #  service_registries {
@@ -141,34 +175,32 @@ resource "aws_ecs_service" "backend" {
 resource "aws_alb_target_group" "backend" {
   name        = "backend-tg"
   port        = 9000
-  protocol    = "HTTP"
+  protocol    = "TCP"
   vpc_id      = aws_vpc.vpc.id
   target_type = "ip"
 
   health_check {
     healthy_threshold   = 3
     interval            = 120
-    protocol            = "HTTP"
-    matcher             = "200,301,302"
-    timeout             = 30
-    path                = "/api/health"
+    protocol            = "TCP"
     unhealthy_threshold = 2
   }
 }
 
-resource "aws_lb_listener_rule" "backend" {
-  listener_arn = aws_lb_listener.http.arn
-  priority     = 1
+resource "aws_lb_listener" "backend" {
+  load_balancer_arn = aws_lb_listener.http.arn
+  port     = 80
+  protocol = "TCP"
 
-  action {
+  default_action {
     type             = "forward"
-    target_group_arn = aws_alb_target_group.backend.arn
+    target_group_arn = aws_alb_target_group.backend.id
   }
 
-  condition {
-    path_pattern {
-      values = ["/api/*"]
-    }
+  lifecycle {
+    ignore_changes = [
+      default_action,
+    ]
   }
 }
 
