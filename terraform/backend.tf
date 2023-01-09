@@ -77,7 +77,7 @@ resource "aws_ecs_task_definition" "backend" {
      "secrets": [],
      "environment": [],
      "healthCheck": {
-       "command": [ "CMD-SHELL", "curl -f http://localhost:9000/api/ || exit 1" ],
+       "command": [ "CMD-SHELL", "curl -f http://localhost:9000/api/health || exit 1" ],
        "interval": 30,
        "retries": 3,
        "timeout": 5
@@ -187,22 +187,21 @@ resource "aws_alb_target_group" "backend" {
   }
 }
 
-#resource "aws_lb_listener" "backend" {
-#  load_balancer_arn = aws_lb_listener.http.arn
-#  port     = 80
-#  protocol = "TCP"
-#
-#  default_action {
-#    type             = "forward"
-#    target_group_arn = aws_alb_target_group.backend.id
-#  }
-#
-#  lifecycle {
-#    ignore_changes = [
-#      default_action,
-#    ]
-#  }
-#}
+resource "aws_lb_listener_rule" "backend" {
+  listener_arn = aws_lb_listener.http.arn
+  priority     = 1
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_alb_target_group.backend.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/api/*"]
+    }
+  }
+}
 
 resource "aws_codebuild_project" "backend" {
   name         = "backend"
