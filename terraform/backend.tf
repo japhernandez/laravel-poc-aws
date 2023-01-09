@@ -65,11 +65,11 @@ resource "aws_ecs_task_definition" "backend" {
   {
     "essential": true,
     "image": "${aws_ecr_repository.backend.repository_url}",
-    "name": "demo",
+    "name": "backend",
     "logConfiguration": {
             "logDriver": "awslogs",
             "options": {
-               "awslogs-group" : "demo",
+               "awslogs-group" : "backend",
                "awslogs-region": "${var.aws_region}",
                "awslogs-stream-prefix": "ecs"
             }
