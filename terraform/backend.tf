@@ -180,7 +180,7 @@ resource "aws_alb_target_group" "backend" {
   target_type = "ip"
 
   health_check {
-    healthy_threshold   = 3
+    healthy_threshold   = 2
     interval            = 120
     protocol            = "TCP"
     unhealthy_threshold = 2
