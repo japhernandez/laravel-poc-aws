@@ -125,7 +125,7 @@ resource "aws_security_group" "backend_task" {
   ingress {
     from_port       = 9000
     to_port         = 9000
-    protocol        = "HTTP"
+    protocol        = "TCP"
     security_groups = [aws_security_group.alb.id]
   }
 
