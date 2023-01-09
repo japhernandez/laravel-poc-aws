@@ -1,6 +1,6 @@
 import { Get, Mapping } from '@tsclean/core'
 
-@Mapping('/health')
+@Mapping('/api/health')
 export class HealthController {
   @Get()
   async getHealthController (): Promise<string> {

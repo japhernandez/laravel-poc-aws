@@ -124,7 +124,7 @@ resource "aws_ecs_service" "backend" {
   load_balancer {
     target_group_arn = aws_alb_target_group.backend.arn
     container_name   = "backend"
-    container_port   = 80
+    container_port   = 9000
   }
 
   lifecycle {
@@ -150,8 +150,8 @@ resource "aws_alb_target_group" "backend" {
     interval            = 30
     protocol            = "HTTP"
     matcher             = 200
-    timeout             = 20
-    path                = "/"
+    timeout             = 3
+    path                = "/api/health"
     unhealthy_threshold = 2
   }
 }
@@ -167,7 +167,7 @@ resource "aws_lb_listener_rule" "backend" {
 
   condition {
     path_pattern {
-      values = ["/"]
+      values = ["/api/*"]
     }
   }
 }
