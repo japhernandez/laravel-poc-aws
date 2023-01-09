@@ -42,9 +42,3 @@ resource "aws_lb_listener" "http" {
     target_group_arn = aws_alb_target_group.backend.arn
   }
 }
-
-resource "aws_alb_target_group_attachment" "example" {
-  target_group_arn = aws_alb_target_group.backend.arn
-  target_id        = aws_ecs_task_definition.backend.id
-  port             = 80
-}
