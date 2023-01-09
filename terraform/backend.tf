@@ -124,7 +124,7 @@ resource "aws_ecs_service" "backend" {
   load_balancer {
     target_group_arn = aws_alb_target_group.backend.arn
     container_name   = "backend"
-    container_port   = 80
+    container_port   = 9000
   }
 
   lifecycle {
@@ -140,17 +140,17 @@ resource "aws_ecs_service" "backend" {
 
 resource "aws_alb_target_group" "backend" {
   name        = "backend-tg"
-  port        = 80
+  port        = 9000
   protocol    = "HTTP"
   vpc_id      = aws_vpc.vpc.id
   target_type = "ip"
 
   health_check {
     healthy_threshold   = 3
-    interval            = 30
+    interval            = 120
     protocol            = "HTTP"
-    matcher             = 200
-    timeout             = 3
+    matcher             = "200,301,302"
+    timeout             = 30
     path                = "/api/health"
     unhealthy_threshold = 2
   }
