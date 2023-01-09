@@ -98,8 +98,8 @@ resource "aws_security_group" "backend_task" {
 
   egress {
     from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -124,7 +124,7 @@ resource "aws_ecs_service" "backend" {
   load_balancer {
     target_group_arn = aws_alb_target_group.backend.arn
     container_name   = "backend"
-    container_port   = 9000
+    container_port   = 80
   }
 
   lifecycle {
