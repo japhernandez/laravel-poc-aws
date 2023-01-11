@@ -82,7 +82,7 @@ resource "aws_ecs_task_definition" "backend" {
   cpu    = 256
   memory = 512
 
-  container_definitions = jsonencode({
+  container_definitions = jsonencode([{
     name         = "backend"
     image        = aws_ecr_repository.backend.repository_url
     essential    = true
@@ -93,8 +93,7 @@ resource "aws_ecs_task_definition" "backend" {
         hostPort      = 9000
       }
     ]
-  })
-
+  }])
   #  container_definitions = templatefile("${abspath(path.root)}/../backend/taskdef.json", {
   #    BACKEND_IMAGE_PATH = aws_ecr_repository.backend.repository_url
   #    NGINX_IMAGE_PATH   = aws_ecr_repository.nginx.repository_url
