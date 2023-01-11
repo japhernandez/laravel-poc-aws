@@ -1,5 +1,5 @@
 resource "aws_lb" "main" {
-  name               = "terraform-alb-${var.environment}"
+  name               = "${var.name}-alb-${var.environment}"
   internal           = false
   load_balancer_type = "application"
   security_groups    = var.alb_security_groups
@@ -14,7 +14,7 @@ resource "aws_lb" "main" {
 }
 
 resource "aws_alb_target_group" "main" {
-  name        = "terraform-tg-${var.environment}"
+  name        = "${var.name}-tg-${var.environment}"
   port        = 80
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
@@ -38,7 +38,7 @@ resource "aws_alb_target_group" "main" {
 
 # Redirect to https listener
 resource "aws_alb_listener" "http" {
-  load_balancer_arn = aws_lb.main.arn
+  load_balancer_arn = aws_lb.main.id
   port              = 80
   protocol          = "HTTP"
 

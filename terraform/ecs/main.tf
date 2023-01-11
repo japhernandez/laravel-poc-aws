@@ -115,7 +115,7 @@ resource "aws_cloudwatch_log_group" "main" {
 }
 
 resource "aws_ecs_task_definition" "main" {
-  family                   = "terraform-task-${var.environment}"
+  family                   = "${var.name}-task-${var.environment}"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = var.container_cpu
@@ -123,7 +123,7 @@ resource "aws_ecs_task_definition" "main" {
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_task_role.arn
   container_definitions = jsonencode([{
-    name        = "terraform-container-${var.environment}"
+    name        = "${var.name}-container-${var.environment}"
     image       = var.container_image_url_repository
     essential   = true
     environment = var.container_environment
@@ -150,9 +150,9 @@ resource "aws_ecs_task_definition" "main" {
 }
 
 resource "aws_ecs_cluster" "main" {
-  name = "terraform-cluster-${var.environment}"
+  name = "${var.name}-cluster-${var.environment}"
   tags = {
-    Name        = "terraform-cluster-${var.environment}"
+    Name        = "${var.name}-cluster-${var.environment}"
     Environment = var.environment
   }
 }
