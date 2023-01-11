@@ -125,4 +125,5 @@ module "codepipeline" {
   github_branch             = var.github-branch
   github_repository         = var.github-repo
   s3_codepipeline_artifacts = module.s3.s3_codepipeline_artifacts
+  s3_artifacts              = module.s3.s3_artifacts
 }

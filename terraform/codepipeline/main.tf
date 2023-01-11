@@ -17,6 +17,53 @@ resource "aws_iam_role" "codepipeline" {
 EOF
 }
 
+resource "aws_iam_role_policy" "codepipeline_policy" {
+  name = "codepipeline_policy"
+  role = aws_iam_role.codepipeline.id
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect":"Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion",
+        "s3:GetBucketVersioning",
+        "s3:PutObjectAcl",
+        "s3:PutObject"
+      ],
+      "Resource": [
+        "${s3_artifacts}",
+        "${s3_artifacts}/*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "codestar-connections:UseConnection"
+      ],
+      "Resource": "${var.connection_github}"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "codebuild:BatchGetBuilds",
+        "codebuild:StartBuild"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_fullaccess" {
+  role       = aws_iam_role.codepipeline.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonECS_FullAccess"
+}
+
 resource "aws_codepipeline" "pipeline" {
   name     = "terraform-sample-pipeline"
   role_arn = aws_iam_role.codepipeline.arn

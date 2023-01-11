@@ -2,6 +2,10 @@ variable "s3_codepipeline_artifacts" {
   description = "The codepipeline artifacts bucket"
 }
 
+variable "s3_artifacts" {
+  description = "The artifacts bucket"
+}
+
 variable "connection_github" {
   description = "The connection source github"
 }

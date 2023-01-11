@@ -166,12 +166,12 @@ resource "aws_ecs_service" "main" {
   deployment_maximum_percent         = 200
   health_check_grace_period_seconds  = 60
   launch_type                        = "FARGATE"
-  scheduling_strategy                = "REPLICA"
+  # scheduling_strategy                = "REPLICA"
 
   network_configuration {
     security_groups  = var.ecs_service_security_groups
     subnets          = var.subnets.*.id
-    assign_public_ip = false
+    assign_public_ip = true
   }
 
   load_balancer {
