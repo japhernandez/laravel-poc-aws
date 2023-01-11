@@ -89,8 +89,8 @@ resource "aws_ecs_task_definition" "backend" {
     portMappings = [
       {
         protocol      = "tcp"
-        containerPort = 9000
-        hostPort      = 9000
+        containerPort = 80
+        hostPort      = 80
       }
     ]
   }])
@@ -124,8 +124,8 @@ resource "aws_security_group" "backend_task" {
   vpc_id = aws_vpc.vpc.id
 
   ingress {
-    from_port       = 9000
-    to_port         = 9000
+    from_port       = 80
+    to_port         = 80
     protocol        = "tcp"
     // security_groups = [aws_security_group.alb.id]
   }
@@ -159,7 +159,7 @@ resource "aws_ecs_service" "backend" {
   load_balancer {
     target_group_arn = aws_alb_target_group.backend.arn
     container_name   = "backend"
-    container_port   = 9000
+    container_port   = 80
   }
 
   lifecycle {
@@ -186,7 +186,7 @@ resource "aws_alb_target_group" "backend" {
     protocol            = "HTTP"
     matcher             = 200
     timeout             = 3
-    path                = "/api/health"
+    path                = "/health"
     unhealthy_threshold = 2
   }
 }
@@ -202,7 +202,7 @@ resource "aws_lb_listener_rule" "backend" {
 
   condition {
     path_pattern {
-      values = ["/api/*"]
+      values = ["/*"]
     }
   }
 }
