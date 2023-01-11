@@ -30,7 +30,7 @@ variable "container_memory" {
   description = "The amount (in MiB) of memory used by the task"
 }
 
-variable "container_image" {
+variable "container_image_url_repository" {
   description = "Docker image to be launched"
 }
 

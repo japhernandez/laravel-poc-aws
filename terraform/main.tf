@@ -69,7 +69,7 @@ module "secrets" {
   source              = "./secrets"
   name                = var.name
   environment         = var.environment
-  application-secrets = var.application-secrets
+  application-secrets = ""
 }
 
 module "s3" {
@@ -103,9 +103,10 @@ module "ecs" {
     }
   ]
   # container_secrets      = module.secrets.secrets_map
-  aws_ecr_repository_url = module.ecr.container_image_url
+  # aws_ecr_repository_url = module.ecr.container_image_url
   # container_secrets_arns = module.secrets.application_secrets_arn
-  container_image        = module.ecr.container_image_name
+  # container_image        = module.ecr.container_image_name
+  container_image_url_repository = module.ecr.container_image_url
 }
 
 module "codebuild" {
@@ -117,7 +118,7 @@ module "codebuild" {
 }
 
 module "codepipeline" {
-  source = "./codepipeline"
+  source                    = "./codepipeline"
   codebuild_project         = module.codebuild.codebuild_project
   connection_github         = module.connection.connection_name
   ecs_cluster_id            = module.ecs.ecs_cluster
