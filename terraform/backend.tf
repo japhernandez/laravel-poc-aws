@@ -1,5 +1,6 @@
 resource "aws_ecr_repository" "backend" {
-  name = "backend"
+  name                 = "backend"
+  image_tag_mutability = "MUTABLE"
 }
 
 resource "aws_iam_role" "backend_task_execution_role" {
@@ -15,6 +16,26 @@ resource "aws_iam_role" "backend_task_execution_role" {
         "Service": "ecs-tasks.amazonaws.com"
       },
       "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role" "backend_ecs_task_role" {
+  name = "backend-ecs-task-role"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
     }
   ]
 }
@@ -52,6 +73,7 @@ resource "aws_iam_role_policy_attachment" "backend_task_execution_policy_attachm
 resource "aws_ecs_task_definition" "backend" {
   family                   = "backend"
   execution_role_arn       = aws_iam_role.backend_task_execution_role.arn
+  task_role_arn            = aws_iam_role.backend_ecs_task_role.arn
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
 
@@ -60,48 +82,28 @@ resource "aws_ecs_task_definition" "backend" {
   cpu    = 256
   memory = 512
 
-  container_definitions = <<DEFINITION
-[
-  {
-    "essential": true,
-    "image": "${aws_ecr_repository.backend.repository_url}",
-    "name": "backend",
-    "logConfiguration": {
-            "logDriver": "awslogs",
-            "options": {
-               "awslogs-group" : "backend",
-               "awslogs-region": "${var.aws_region}",
-               "awslogs-stream-prefix": "ecs"
-            }
-     },
-     "secrets": [],
-     "environment": [],
-     "healthCheck": {
-       "command": [ "CMD-SHELL", "curl -f http://localhost:9000/api/health || exit 1" ],
-       "interval": 30,
-       "retries": 3,
-       "timeout": 5
-     },
-     "portMappings": [
-        {
-           "containerPort": 9000,
-           "hostPort": 9000,
-           "protocol": "HTTP"
-        }
-     ]
-  }
-]
-DEFINITION
+  container_definitions = jsonencode({
+    name         = "backend"
+    image        = aws_ecr_repository.backend.repository_url
+    essential    = true
+    portMappings = [
+      {
+        protocol      = "tcp"
+        containerPort = 9000
+        hostPort      = 9000
+      }
+    ]
+  })
 
-#  container_definitions = templatefile("${abspath(path.root)}/../backend/taskdef.json", {
-#    BACKEND_IMAGE_PATH = aws_ecr_repository.backend.repository_url
-#    NGINX_IMAGE_PATH   = aws_ecr_repository.nginx.repository_url
-#    DB_HOST            = aws_db_instance.db.address
-#    DB_PORT            = aws_db_instance.db.port
-#    DB_DATABASE        = aws_db_instance.db.name
-#    DB_USERNAME        = "${aws_secretsmanager_secret.rds_secret.arn}:username::"
-#    DB_PASSWORD        = "${aws_secretsmanager_secret.rds_secret.arn}:password::"
-#  })
+  #  container_definitions = templatefile("${abspath(path.root)}/../backend/taskdef.json", {
+  #    BACKEND_IMAGE_PATH = aws_ecr_repository.backend.repository_url
+  #    NGINX_IMAGE_PATH   = aws_ecr_repository.nginx.repository_url
+  #    DB_HOST            = aws_db_instance.db.address
+  #    DB_PORT            = aws_db_instance.db.port
+  #    DB_DATABASE        = aws_db_instance.db.name
+  #    DB_USERNAME        = "${aws_secretsmanager_secret.rds_secret.arn}:username::"
+  #    DB_PASSWORD        = "${aws_secretsmanager_secret.rds_secret.arn}:password::"
+  #  })
 }
 #
 #resource "aws_service_discovery_service" "backend" {
@@ -125,8 +127,8 @@ resource "aws_security_group" "backend_task" {
   ingress {
     from_port       = 9000
     to_port         = 9000
-    protocol        = "TCP"
-    security_groups = [aws_security_group.alb.id]
+    protocol        = "tcp"
+    // security_groups = [aws_security_group.alb.id]
   }
 
   egress {
@@ -150,13 +152,13 @@ resource "aws_ecs_service" "backend" {
   desired_count                      = 2
 
   network_configuration {
-    subnets         = aws_subnet.apps[*].id
-    security_groups = [aws_security_group.backend_task.id]
+    subnets          = aws_subnet.apps[*].id
+    security_groups  = [aws_security_group.backend_task.id]
     assign_public_ip = true
   }
 
   load_balancer {
-    target_group_arn = aws_alb_target_group.backend.id
+    target_group_arn = aws_alb_target_group.backend.arn
     container_name   = "backend"
     container_port   = 9000
   }
@@ -165,9 +167,9 @@ resource "aws_ecs_service" "backend" {
     ignore_changes = [task_definition, load_balancer]
   }
 
-#  service_registries {
-#    registry_arn = aws_service_discovery_service.backend.arn
-#  }
+  #  service_registries {
+  #    registry_arn = aws_service_discovery_service.backend.arn
+  #  }
 
   depends_on = [aws_lb.alb]
 }
@@ -180,9 +182,12 @@ resource "aws_alb_target_group" "backend" {
   target_type = "ip"
 
   health_check {
-    healthy_threshold   = 2
-    interval            = 120
+    healthy_threshold   = 3
+    interval            = 30
     protocol            = "HTTP"
+    matcher             = 200
+    timeout             = 3
+    path                = "/api/health"
     unhealthy_threshold = 2
   }
 }

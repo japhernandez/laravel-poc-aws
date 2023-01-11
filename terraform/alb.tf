@@ -3,9 +3,9 @@ resource "aws_security_group" "alb" {
   vpc_id = aws_vpc.vpc.id
 
   ingress {
-    from_port   = 9000
-    to_port     = 9000
-    protocol    = "TCP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -33,7 +33,7 @@ resource "aws_lb" "alb" {
 }
 
 resource "aws_lb_listener" "http" {
-  load_balancer_arn = aws_lb.alb.arn
+  load_balancer_arn = aws_lb.alb.id
   port              = 80
   protocol          = "HTTP"
 
