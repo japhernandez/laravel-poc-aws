@@ -175,7 +175,7 @@ resource "aws_ecs_service" "backend" {
 
 resource "aws_alb_target_group" "backend" {
   name        = "backend-tg"
-  port        = 9000
+  port        = 80
   protocol    = "HTTP"
   vpc_id      = aws_vpc.vpc.id
   target_type = "ip"
