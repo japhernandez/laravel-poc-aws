@@ -38,7 +38,7 @@ resource "aws_alb_target_group" "main" {
 
 # Redirect to https listener
 resource "aws_alb_listener" "http" {
-  load_balancer_arn = aws_lb.main.id
+  load_balancer_arn = aws_lb.main.arn
   port              = 80
   protocol          = "HTTP"
 

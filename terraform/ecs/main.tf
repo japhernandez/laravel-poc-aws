@@ -123,7 +123,7 @@ resource "aws_ecs_task_definition" "main" {
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_task_role.arn
   container_definitions = jsonencode([{
-    name        = "${var.name}-container-${var.environment}"
+    name        = "terraform-container-${var.environment}"
     image       = var.container_image_url_repository
     essential   = true
     environment = var.container_environment
@@ -150,9 +150,9 @@ resource "aws_ecs_task_definition" "main" {
 }
 
 resource "aws_ecs_cluster" "main" {
-  name = "${var.name}-cluster-${var.environment}"
+  name = "terraform-cluster-${var.environment}"
   tags = {
-    Name        = "${var.name}-cluster-${var.environment}"
+    Name        = "terraform-cluster-${var.environment}"
     Environment = var.environment
   }
 }

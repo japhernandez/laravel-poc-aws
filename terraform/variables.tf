@@ -20,10 +20,12 @@ variable "aws-region" {
 
 variable "aws-access-key" {
   type = string
+  sensitive = true
 }
 
 variable "aws-secret-key" {
   type = string
+  sensitive = true
 }
 
 variable "github-repo" {
