@@ -4,4 +4,4 @@
 .DS_Store
 .idea
 
-./terraform/terraform.tfvars
+terraform_old/terraform.tfvars
