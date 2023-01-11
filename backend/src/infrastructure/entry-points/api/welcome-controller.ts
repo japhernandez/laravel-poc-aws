@@ -1,6 +1,6 @@
 import { Get, Mapping } from '@tsclean/core'
 
-@Mapping('/')
+@Mapping('/api/')
 export class WelcomeController {
   @Get()
   async getWelcomeController (): Promise<string> {

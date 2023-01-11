@@ -2,7 +2,7 @@ import { Adapter, Mapping, Post, Body } from '@tsclean/core'
 import { IUserService, USER_SERVICE } from '@/domain/use-cases/user-service'
 import { AddUserParams, UserModel } from '@/domain/models/user'
 
-@Mapping('/users')
+@Mapping('/api/v1/users')
 export class UserController {
   constructor (
     @Adapter(USER_SERVICE)

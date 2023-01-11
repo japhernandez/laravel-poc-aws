@@ -84,7 +84,7 @@ variable "container_memory" {
 
 variable "health_check_path" {
   description = "Http path for task health check"
-  default     = "/health"
+  default     = "/api/health"
 }
 
 variable "tsl_certificate_arn" {
