@@ -38,7 +38,7 @@ resource "aws_codepipeline" "pipeline" {
       output_artifacts = ["source_output"]
 
       configuration = {
-        ConnectionArn    = connection_github
+        ConnectionArn    = var.connection_github
         FullRepositoryId = var.github_repository
         BranchName       = var.github_branch
       }

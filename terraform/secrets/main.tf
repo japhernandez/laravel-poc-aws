@@ -4,17 +4,17 @@
 # you could put them in secrets.tfvars which is in .gitignore
 
 
-resource "aws_secretsmanager_secret" "application_secrets" {
-  count = length(var.application-secrets)
-  name  = "${var.name}-application-secrets-${var.environment}-${element(keys(var.application-secrets), count.index)}"
-}
-
-
-resource "aws_secretsmanager_secret_version" "application_secrets_values" {
-  count         = length(var.application-secrets)
-  secret_id     = element(aws_secretsmanager_secret.application_secrets.*.id, count.index)
-  secret_string = element(values(var.application-secrets), count.index)
-}
+#resource "aws_secretsmanager_secret" "application_secrets" {
+#  count = length(var.application-secrets)
+#  name  = "${var.name}-application-secrets-${var.environment}-${element(keys(var.application-secrets), count.index)}"
+#}
+#
+#
+#resource "aws_secretsmanager_secret_version" "application_secrets_values" {
+#  count         = length(var.application-secrets)
+#  secret_id     = element(aws_secretsmanager_secret.application_secrets.*.id, count.index)
+#  secret_string = element(values(var.application-secrets), count.index)
+#}
 
 #locals {
 #  secrets = zipmap(keys(var.application-secrets), aws_secretsmanager_secret_version.solaris_broker_application_secrets_values.*.arn)
