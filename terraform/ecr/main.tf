@@ -7,7 +7,7 @@ resource "aws_ecr_repository" "main" {
   }
 }
 
-output "container_image_name" {
+output "container_name" {
   value = aws_ecr_repository.main.name
 }
 
