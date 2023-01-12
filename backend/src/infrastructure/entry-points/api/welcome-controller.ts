@@ -4,6 +4,6 @@ import { Get, Mapping } from '@tsclean/core'
 export class WelcomeController {
   @Get()
   async getWelcomeController (): Promise<string> {
-    return JSON.stringify('Welcome Suitme to AWS')
+    return JSON.stringify('Welcome Suitme to AWS and ci, cd integration')
   }
 }
